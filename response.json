@@ -1,0 +1,1 @@
+{"statusCode": 200, "body": "Fargate Task gestartet: arn:aws:ecs:eu-central-1:545618397441:task/counter-cluster/9ae2ebb1cce84313ad3abdc2952bb453"}
