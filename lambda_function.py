@@ -18,9 +18,9 @@ def lambda_handler(event, context):
             launchType='FARGATE',
             networkConfiguration={
                 'awsvpcConfiguration': {
-                    'subnets': [SUBNET_ID],
-                    'securityGroups': [SECURITY_GROUP_ID],
-                    'assignPublicIp': 'ENABLED'
+                    'subnets': ['subnet-044f37ec1d2a17b36'],
+                    'securityGroups': ['sg-0XXXXXXXXXXXXXXX'],
+                    'assignPublicIp': 'ENABLED'  # <--- Muss auf ENABLED stehen!
                 }
             }
         )
