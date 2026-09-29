@@ -11,13 +11,13 @@ provider "aws" {
   region = "eu-central-1"
 }
 
-# 1. ECR Repository fuer das Docker Image
+# 1. ECR Repository for the Docker Image
 resource "aws_ecr_repository" "repo" {
   name                 = "counter-repo"
   image_tag_mutability = "MUTABLE"
 }
 
-# 2. Bestehendes Subnetz & VPC nutzen (Konform mit Firmen-Richtlinien)
+# 2. Existing Subnet & VPC usage (Company policy compliant)
 locals {
   subnet_id            = "subnet-044f37ec1d2a17b36"
   permissions_boundary = "arn:aws:iam::545618397441:policy/ECASBubbleOwnerPermissionBoundaries"
@@ -64,7 +64,7 @@ resource "aws_ecs_task_definition" "task" {
   family                   = "counter-task-def"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "256" # XS Config laut Whiteboard
+  cpu                      = "256"
   memory                   = "512"
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
 
@@ -72,14 +72,6 @@ resource "aws_ecs_task_definition" "task" {
     name      = "counter-container"
     image     = "${aws_ecr_repository.repo.repository_url}:latest"
     essential = true
-    logConfiguration = {
-      logDriver = "awslogs"
-      options = {
-        "awslogs-group"         = "/ecs/counter-task"
-        "awslogs-region"        = "eu-central-1"
-        "awslogs-stream-prefix" = "ecs"
-      }
-    }
   }])
 }
 
@@ -88,7 +80,7 @@ resource "aws_cloudwatch_log_group" "ecs_logs" {
   retention_in_days = 1
 }
 
-# 4. Lambda Rolle & Funktion
+# 4. Lambda Role & Function
 resource "aws_iam_role" "lambda_role" {
   name                 = "counter-lambda-role"
   permissions_boundary = local.permissions_boundary

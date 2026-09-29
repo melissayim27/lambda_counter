@@ -25,15 +25,19 @@ def lambda_handler(event, context):
             }
         )
         task_arn = response['tasks'][0]['taskArn']
-        return {"statusCode": 200, "body": f"Fargate Task gestartet: {task_arn}"}
+        print(f"Started task ARN: {task_arn}")
+        return {"statusCode": 200, "body": f"Fargate Task started: {task_arn}"}
         
     elif trigger == "END":
-        tasks = ecs.list_tasks(cluster=CLUSTER_NAME, family=TASK_DEF, desiredStatus='RUNNING')
-        if not tasks['taskArns']:
-            return {"statusCode": 200, "body": "Kein laufender Task zum Stoppen gefunden."}
+        tasks = ecs.list_tasks(cluster=CLUSTER_NAME, desiredStatus='RUNNING')['taskArns']
+        pending = ecs.list_tasks(cluster=CLUSTER_NAME, desiredStatus='PENDING')['taskArns']
+        all_tasks = tasks + pending
+        
+        if not all_tasks:
+            return {"statusCode": 200, "body": "No running or pending tasks found."}
             
-        for task_arn in tasks['taskArns']:
-            ecs.stop_task(cluster=CLUSTER_NAME, task=task_arn, reason='Gekillt durch Lambda END Trigger')
-        return {"statusCode": 200, "body": f"Task(s) gestoppt: {tasks['taskArns']}"}
+        for task_arn in all_tasks:
+            ecs.stop_task(cluster=CLUSTER_NAME, task=task_arn, reason='Killed by Lambda END trigger')
+        return {"statusCode": 200, "body": f"Task(s) stopped: {all_tasks}"}
 
-    return {"statusCode": 400, "body": "Ungueltiger Trigger. Nutzen Sie {'trigger': 'START'} oder {'trigger': 'END'}."}
+    return {"statusCode": 400, "body": "Invalid trigger. Use {'trigger': 'START'} or {'trigger': 'END'}."}
