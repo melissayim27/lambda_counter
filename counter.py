@@ -1,7 +1,7 @@
 import time
 import sys
 
-for i in range(1001):
+for i in range(21):
     print(f"Count: {i}", flush=True)
     time.sleep(1)
 

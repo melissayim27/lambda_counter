@@ -11,15 +11,12 @@ provider "aws" {
   region = "eu-central-1"
 }
 
-# 1. ECR Repository for the Docker Image
 resource "aws_ecr_repository" "repo" {
   name                 = "counter-repo"
   image_tag_mutability = "MUTABLE"
 }
-
-# 2. Existing Subnet & VPC usage (Company policy compliant)
 locals {
-  subnet_id            = "subnet-044f37ec1d2a17b36"
+  subnet_id            = "subnet-07e18babab8862338" 
   permissions_boundary = "arn:aws:iam::545618397441:policy/ECASBubbleOwnerPermissionBoundaries"
 }
 
@@ -39,7 +36,6 @@ resource "aws_security_group" "fargate_sg" {
   }
 }
 
-# 3. ECS Cluster & Task Definition
 resource "aws_ecs_cluster" "cluster" {
   name = "counter-cluster"
 }
@@ -72,6 +68,16 @@ resource "aws_ecs_task_definition" "task" {
     name      = "counter-container"
     image     = "${aws_ecr_repository.repo.repository_url}:latest"
     essential = true
+    
+    # HIER HINZUFEÜGEN:
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
+        "awslogs-region"        = "eu-central-1"
+        "awslogs-stream-prefix" = "ecs"
+      }
+    }
   }])
 }
 
@@ -80,7 +86,6 @@ resource "aws_cloudwatch_log_group" "ecs_logs" {
   retention_in_days = 1
 }
 
-# 4. Lambda Role & Function
 resource "aws_iam_role" "lambda_role" {
   name                 = "counter-lambda-role"
   permissions_boundary = local.permissions_boundary
@@ -147,4 +152,15 @@ resource "aws_lambda_function" "counter_lambda" {
 
 output "ecr_repository_url" {
   value = aws_ecr_repository.repo.repository_url
+}
+
+data "aws_subnets" "all" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_subnet.selected.vpc_id]
+  }
+}
+
+output "all_subnet_ids" {
+  value = data.aws_subnets.all.ids
 }

@@ -1,12 +1,11 @@
 import os
 import boto3
 
-ecs = boto3.client('ecs')
+ecs = boto3.client('ecs', region_name='eu-central-1')
 
-CLUSTER_NAME = os.environ.get('ECS_CLUSTER')
-TASK_DEF = os.environ.get('TASK_DEFINITION')
-SUBNET_ID = os.environ.get('SUBNET_ID')
-SECURITY_GROUP_ID = os.environ.get('SECURITY_GROUP_ID')
+CLUSTER_NAME = os.environ.get('ECS_CLUSTER', 'counter-cluster')
+TASK_DEF = os.environ.get('TASK_DEFINITION', 'counter-task-def')
+SUBNET_ID = os.environ.get('SUBNET_ID', 'subnet-07e18babab8862338')
 
 def lambda_handler(event, context):
     trigger = event.get("trigger", "").upper()
@@ -18,9 +17,12 @@ def lambda_handler(event, context):
             launchType='FARGATE',
             networkConfiguration={
                 'awsvpcConfiguration': {
-                    'subnets': ['subnet-044f37ec1d2a17b36'],
-                    'securityGroups': ['sg-0XXXXXXXXXXXXXXX'],
-                    'assignPublicIp': 'ENABLED'  # <--- Muss auf ENABLED stehen!
+                    'subnets': [SUBNET_ID],
+                    'securityGroups': [
+                        'sg-0eb28192105c8e01b', # Deine Fargate SG
+                        'sg-049a18c2106caf80d'  # VPCEndPointAccess für ECR-Zugriff!
+                    ],
+                    'assignPublicIp': 'ENABLED'
                 }
             }
         )
