@@ -19,8 +19,8 @@ def lambda_handler(event, context):
                 'awsvpcConfiguration': {
                     'subnets': [SUBNET_ID],
                     'securityGroups': [
-                        'sg-0eb28192105c8e01b', # Deine Fargate SG
-                        'sg-049a18c2106caf80d'  # VPCEndPointAccess für ECR-Zugriff!
+                        'sg-0eb28192105c8e01b',
+                        'sg-049a18c2106caf80d'  
                     ],
                     'assignPublicIp': 'ENABLED'
                 }

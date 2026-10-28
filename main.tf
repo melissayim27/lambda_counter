@@ -68,8 +68,7 @@ resource "aws_ecs_task_definition" "task" {
     name      = "counter-container"
     image     = "${aws_ecr_repository.repo.repository_url}:latest"
     essential = true
-    
-    # HIER HINZUFEÜGEN:
+
     logConfiguration = {
       logDriver = "awslogs"
       options = {
