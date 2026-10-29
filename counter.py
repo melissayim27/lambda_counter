@@ -14,5 +14,5 @@ def count_sum(seconds: int, delay: float = 1.0) -> int:
 
 if __name__ == "__main__":
     logging.info("Starting Counter Application...")
-    final_sum = count_sum(1000, delay=1.0)
+    final_sum = count_sum(100, delay=1.0)
     logging.info(f"Final calculated sum: {final_sum}")
